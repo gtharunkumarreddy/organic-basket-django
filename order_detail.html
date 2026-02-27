@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Order #{{ order.id }} | Organic Basket{% endblock %}
+
+{% block content %}
+<h1 class="h3 fw-semibold mb-3">Order #{{ order.id }}</h1>
+
+<p class="mb-1">Placed on: {{ order.created_at }}</p>
+<p class="mb-1">Status: <span class="badge rounded-pill bg-success-subtle text-success text-capitalize">{{ order.get_status_display }}</span></p>
+<p class="mb-3">Total: <strong>₹ {{ order.total_amount }}</strong></p>
+
+{% if order.status == "pending" %}
+    <div class="alert alert-warning">
+        Payment is pending.
+        <a href="{% url 'store:upi_payment' order.id %}" class="alert-link">Pay with UPI QR</a>
+    </div>
+{% elif order.status == "paid" %}
+    <div class="alert alert-info">
+        Payment received. Waiting for admin acceptance.
+    </div>
+{% elif order.status == "processing" %}
+    <div class="alert alert-success">
+        Admin accepted your order. It is now being processed.
+    </div>
+{% endif %}
+
+<h2 class="h5 fw-semibold mt-4 mb-2">Items</h2>
+<ul class="list-group mb-4">
+    {% for item in order.items.all %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <div class="fw-semibold">{{ item.product.name }}</div>
+                <div class="small text-muted">Qty: {{ item.quantity }} × ₹ {{ item.price }}</div>
+            </div>
+            <div class="fw-semibold">₹ {{ item.subtotal }}</div>
+        </li>
+    {% endfor %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div class="fw-semibold">Total</div>
+        <div class="fw-semibold">₹ {{ order.total_amount }}</div>
+    </li>
+</ul>
+
+<a href="{% url 'store:order_list' %}" class="btn btn-outline-success">Back to orders</a>
+{% endblock %}
+

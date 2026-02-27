@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout | Organic Basket{% endblock %}
+
+{% block extra_head %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+{% endblock %}
+
+{% block content %}
+<h1 class="h3 fw-semibold mb-4">Checkout</h1>
+
+<div class="card shadow-soft">
+    <div class="card-body">
+        <p class="mb-1">Order ID: <strong>#{{ order.id }}</strong></p>
+        <p class="mb-3">Amount: <strong>₹ {{ order.total_amount }}</strong></p>
+        <button id="rzp-button" class="btn btn-success btn-lg">Pay with Razorpay</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const options = {
+        key: "{{ razorpay_key_id }}",
+        amount: "{{ amount }}",
+        currency: "{{ currency }}",
+        name: "Organic Basket",
+        description: "Order #{{ order.id }}",
+        order_id: "{{ razorpay_order_id }}",
+        handler: function (response){
+            const formData = new FormData();
+            formData.append("razorpay_payment_id", response.razorpay_payment_id);
+            formData.append("razorpay_order_id", response.razorpay_order_id);
+            formData.append("razorpay_signature", response.razorpay_signature);
+
+            fetch("{% url 'store:payment_verify' %}", {
+                method: "POST",
+                body: formData,
+                headers: {"X-CSRFToken": "{{ csrf_token }}"},
+            }).then(res => res.json()).then(data => {
+                if (data.status === "success") {
+                    window.location.href = "{% url 'store:order_detail' order.id %}";
+                } else {
+                    alert("Payment verification failed.");
+                }
+            });
+        },
+        theme: {
+            color: "#198754"
+        }
+    };
+
+    const rzp1 = new Razorpay(options);
+    document.getElementById("rzp-button").onclick = function(e){
+        rzp1.open();
+        e.preventDefault();
+    }
+</script>
+{% endblock %}
+

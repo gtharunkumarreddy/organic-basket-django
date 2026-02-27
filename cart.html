@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Cart | Organic Basket{% endblock %}
+
+{% block content %}
+<h1 class="h3 fw-semibold mb-4">Your Cart</h1>
+
+{% if cart.items.all %}
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th class="text-center">Quantity</th>
+                    <th class="text-end">Price</th>
+                    <th class="text-end">Subtotal</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart.items.all %}
+                <tr>
+                    <td class="d-flex align-items-center gap-2">
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="rounded" style="width: 48px; height: 48px; object-fit: cover;">
+                        <div>
+                            <div class="fw-semibold">{{ item.product.name }}</div>
+                            <div class="small text-muted">{{ item.product.get_category_display }}</div>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <form method="post" action="{% url 'store:update_cart_item' item.id %}" class="d-inline-flex align-items-center gap-2">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control form-control-sm" style="width: 70px;">
+                            <button type="submit" class="btn btn-sm btn-outline-success">Update</button>
+                        </form>
+                    </td>
+                    <td class="text-end">₹ {{ item.product.price }}</td>
+                    <td class="text-end">₹ {{ item.subtotal }}</td>
+                    <td class="text-end">
+                        <a href="{% url 'store:remove_cart_item' item.id %}" class="btn btn-sm btn-outline-danger">Remove</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <a href="{% url 'store:product_list' %}" class="btn btn-outline-success">Continue shopping</a>
+        <div class="text-end">
+            <div class="fs-5 fw-semibold">Total: ₹ {{ cart.total_amount }}</div>
+            <a href="{% url 'store:checkout' %}" class="btn btn-success mt-2">Proceed to checkout</a>
+        </div>
+    </div>
+{% else %}
+    <p class="text-muted">Your cart is empty.</p>
+    <a href="{% url 'store:product_list' %}" class="btn btn-success mt-3">Browse products</a>
+{% endif %}
+{% endblock %}
+

@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Organic Basket{% endblock %}
+
+{% block content %}
+<section class="hero-section rounded-4 p-4 p-md-5 mb-5">
+    <div class="row align-items-center gy-4">
+        <div class="col-md-6">
+            <h1 class="display-5 fw-bold mb-3 fade-in-up">
+                Fresh, Organic <span class="text-success">Fruits &amp; Vegetables</span> Delivered Daily
+            </h1>
+            <p class="lead text-muted mb-4 fade-in-up delay-1">
+                Straight from local farms to your kitchen. 100% chemical-free, handpicked produce.
+            </p>
+            <div class="d-flex flex-wrap gap-3 fade-in-up delay-2">
+                <a href="{% url 'store:product_list' %}" class="btn btn-success btn-lg shadow-soft">Shop Now</a>
+                <a href="#categories" class="btn btn-outline-success btn-lg">Browse Categories</a>
+            </div>
+            <div class="d-flex flex-wrap gap-4 mt-4 small text-muted fade-in-up delay-3">
+                <div><strong>Same-day delivery</strong> in major cities</div>
+                <div><strong>Eco-friendly</strong> packaging</div>
+                <div><strong>Farm certified</strong> partners</div>
+            </div>
+        </div>
+        <div class="col-md-6 text-center">
+            <div class="hero-fruits float-animation">
+                <div class="hero-circle"></div>
+                <img src="https://images.pexels.com/photos/143133/pexels-photo-143133.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Fresh fruits and vegetables" class="img-fluid rounded-4 shadow-soft">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="categories" class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h3 fw-semibold">Shop by Category</h2>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <a href="{% url 'store:product_list' %}?category=fruit" class="text-decoration-none">
+                <div class="category-card gradient-fruit">
+                    <div>
+                        <h3 class="h4 mb-1">Fresh Fruits</h3>
+                        <p class="mb-0 text-muted">Juicy, seasonal and naturally sweet.</p>
+                    </div>
+                    <span class="category-pill">Shop fruits →</span>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6">
+            <a href="{% url 'store:product_list' %}?category=vegetable" class="text-decoration-none">
+                <div class="category-card gradient-veg">
+                    <div>
+                        <h3 class="h4 mb-1">Green Vegetables</h3>
+                        <p class="mb-0 text-muted">Crisp, leafy and nutrient-rich.</p>
+                    </div>
+                    <span class="category-pill">Shop vegetables →</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 fw-semibold">Featured Picks</h2>
+    </div>
+    <div class="row g-4">
+        {% for product in featured_products %}
+            <div class="col-6 col-md-3">
+                <div class="product-card h-100">
+                    <div class="product-image-wrapper">
+                        <img src="{{ product.image.url|default:'/static/images/placeholder.png' }}" alt="{{ product.name }}" class="product-image">
+                    </div>
+                    <div class="p-3">
+                        <h3 class="h6 mb-1">{{ product.name }}</h3>
+                        <p class="text-success fw-semibold mb-1">₹ {{ product.price }}</p>
+                        <p class="small text-muted text-truncate-2">{{ product.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <a href="{% url 'store:product_detail' product.pk %}" class="btn btn-sm btn-outline-success">View</a>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'store:add_to_cart' product.id %}" class="btn btn-sm btn-success">Add</a>
+                            {% else %}
+                                <a href="{% url 'store:login' %}" class="btn btn-sm btn-success">Login to buy</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-muted">No featured products yet.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="mb-5">
+    <h2 class="h4 fw-semibold mb-3">Fresh Fruits</h2>
+    <div class="row g-4">
+        {% for product in fruits %}
+            <div class="col-6 col-md-3">
+                <div class="product-card h-100">
+                    <div class="product-image-wrapper">
+                        <img src="{{ product.image.url|default:'/static/images/placeholder.png' }}" alt="{{ product.name }}" class="product-image">
+                    </div>
+                    <div class="p-3">
+                        <h3 class="h6 mb-1">{{ product.name }}</h3>
+                        <p class="text-success fw-semibold mb-1">₹ {{ product.price }}</p>
+                        <a href="{% url 'store:product_detail' product.pk %}" class="btn btn-sm btn-outline-success w-100">View details</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-muted">Fruit products will appear here.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="mb-5">
+    <h2 class="h4 fw-semibold mb-3">Green Vegetables</h2>
+    <div class="row g-4">
+        {% for product in vegetables %}
+            <div class="col-6 col-md-3">
+                <div class="product-card h-100">
+                    <div class="product-image-wrapper">
+                        <img src="{{ product.image.url|default:'/static/images/placeholder.png' }}" alt="{{ product.name }}" class="product-image">
+                    </div>
+                    <div class="p-3">
+                        <h3 class="h6 mb-1">{{ product.name }}</h3>
+                        <p class="text-success fw-semibold mb-1">₹ {{ product.price }}</p>
+                        <a href="{% url 'store:product_detail' product.pk %}" class="btn btn-sm btn-outline-success w-100">View details</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-muted">Vegetable products will appear here.</p>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}
+

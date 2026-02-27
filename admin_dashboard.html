@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics | Organic Basket{% endblock %}
+
+{% block content %}
+<h1 class="h3 fw-semibold mb-4">Store Analytics</h1>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card bg-gradient-green">
+            <div class="stat-label">Total Revenue</div>
+            <div class="stat-value">₹ {{ total_revenue }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card bg-gradient-blue">
+            <div class="stat-label">Total Orders</div>
+            <div class="stat-value">{{ total_orders }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card bg-gradient-gold">
+            <div class="stat-label">Products</div>
+            <div class="stat-value">{{ total_products }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-soft mb-4">
+    <div class="card-body">
+        <h2 class="h5 fw-semibold mb-3">UPI Paid Orders Waiting Approval</h2>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>User</th>
+                        <th>Total</th>
+                        <th>Txn ID</th>
+                        <th>Placed</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in pending_approvals %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>{{ order.user.username }}</td>
+                            <td>₹ {{ order.total_amount }}</td>
+                            <td>{{ order.razorpay_payment_id|default:"-" }}</td>
+                            <td>{{ order.created_at }}</td>
+                            <td class="text-end">
+                                <form method="post" action="{% url 'store:approve_order' order.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-success">Accept Order</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-muted">No paid orders waiting for approval.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card shadow-soft h-100">
+            <div class="card-body">
+                <h2 class="h5 fw-semibold mb-3">Orders by Status</h2>
+                <ul class="list-group">
+                    {% for row in status_breakdown %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="text-capitalize">{{ row.status }}</span>
+                            <span class="badge bg-success-subtle text-success rounded-pill">{{ row.count }}</span>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-muted">No orders yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-soft h-100">
+            <div class="card-body">
+                <h2 class="h5 fw-semibold mb-3">Top Products</h2>
+                <ul class="list-group">
+                    {% for row in top_products %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-semibold">{{ row.product__name }}</div>
+                                <div class="small text-muted">Qty: {{ row.total_qty }}</div>
+                            </div>
+                            <div class="fw-semibold">₹ {{ row.revenue }}</div>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-muted">No top products yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
