@@ -157,3 +157,4 @@ For production:
 
 This structure is compatible with common deployment platforms (Gunicorn + Nginx, or cloud PaaS) and is ready to be extended with a production database later.
 
+
